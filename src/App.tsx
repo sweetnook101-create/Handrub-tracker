@@ -9,8 +9,14 @@ function AppContent() {
   const [view, setView] = useState('dashboard');
   const { loading } = useAuth();
 
-if (isLineBrowser()) {
-  return navigator.userAgent.toLowerCase().includes("line");
+{isLineBrowser() && (
+  <div style={{ padding: 20 }}>
+    <p>กรุณาเปิดในเบราว์เซอร์</p>
+    <button onClick={openExternal}>
+      เปิดใน Chrome
+    </button>
+  </div>
+)}
 }
 const [showLinePopup, setShowLinePopup] = useState(false);
 function openExternal() {
