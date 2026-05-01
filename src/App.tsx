@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
@@ -8,7 +8,31 @@ import EntryForm from './components/EntryForm';
 function AppContent() {
   const [view, setView] = useState('dashboard');
   const { loading } = useAuth();
+import { useEffect } from "react";
 
+function isLineBrowser() {
+  return navigator.userAgent.includes("Line");
+}
+
+function openExternal() {
+  const url = window.location.href;
+
+  if (/Android/i.test(navigator.userAgent)) {
+    window.location.href = `intent://${url.replace(
+      /^https?:\/\//,
+      ""
+    )}#Intent;scheme=https;package=com.android.chrome;end`;
+  } else {
+    window.location.href = url;
+  }
+}
+
+useEffect(() => {
+  if (isLineBrowser()) {
+    document.getElementById("lineModal").style.display = "flex";
+    setTimeout(openExternal, 1000);
+  }
+}, []);
   if (loading) {
     return (
   <>
