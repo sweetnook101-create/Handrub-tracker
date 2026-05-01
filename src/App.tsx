@@ -11,10 +11,25 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
-        <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
+  <>
+    {/* ✅ Popup */}
+    <div id="lineModal" className="modal">
+      <div style={{background:"white", padding:"20px", borderRadius:"12px"}}>
+        <h3>กรุณาเปิดผ่าน Chrome</h3>
+        <button onClick={openExternal}>เปิด</button>
       </div>
-    );
+    </div>
+
+    {/* ✅ Layout หลัก */}
+    <Layout activeView={view} onViewChange={setView}>
+      <div className="py-4">
+        {view === 'dashboard' && <Dashboard />}
+        {view === 'locations' && <LocationManager />}
+        {view === 'entry' && <EntryForm onComplete={() => setView('dashboard')} />}
+      </div>
+    </Layout>
+  </>
+);
   }
 
   return (
