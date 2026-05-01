@@ -23,10 +23,14 @@ function openExternal() {
   const url = window.location.href;
 
   if (/Android/i.test(navigator.userAgent)) {
-    window.location.href = `intent://${url.replace(
-      /^https?:\/\//,
-      ""
-    )}#Intent;scheme=https;package=com.android.chrome;end`;
+    window.location.href =
+      `intent://${url.replace(/^https?:\/\//, "")}` +
+      "#Intent;scheme=https;package=com.android.chrome;end";
+
+    // fallback
+    setTimeout(() => {
+      window.location.href = url;
+    }, 1500);
   } else {
     window.location.href = url;
   }
