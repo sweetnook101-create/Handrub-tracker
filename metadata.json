@@ -1,0 +1,6 @@
+{
+  "name": "HygieneLog: Handrub Tracker",
+  "description": "Hospital ward handrub usage monitoring system with location tracking and analytics dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

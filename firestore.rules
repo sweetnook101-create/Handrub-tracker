@@ -1,0 +1,67 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Locations ---
+    match /locations/{locationId} {
+      function isValidLocation(data) {
+        return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+            && data.type is string && data.type.size() <= 50
+            && data.currentVolume is number && data.currentVolume >= 0 && data.currentVolume <= 1000
+            && data.bottleCapacity is number && data.bottleCapacity > 0 && data.bottleCapacity <= 1000
+            && data.createdBy == request.auth.uid;
+      }
+
+      allow list: if isSignedIn();
+      allow get: if isSignedIn();
+      allow create: if isSignedIn() && isValidLocation(incoming()) && isValidId(locationId);
+      allow update: if isSignedIn() 
+                    && isValidLocation(incoming())
+                    && incoming().createdBy == existing().createdBy // Immutable owner
+                    && (
+                      // Action: Update Volume
+                      incoming().diff(existing()).affectedKeys().hasOnly(['currentVolume', 'lastEntryAt', 'lastResetAt', 'bottleCapacity'])
+                    );
+      allow delete: if false; // Audit logs should maintain locations
+    }
+
+    // --- Usage Logs ---
+    match /usage_logs/{logId} {
+      function isValidUsageLog(data) {
+        return data.locationId is string && isValidId(data.locationId)
+            && data.volumeRemaining is number && data.volumeRemaining >= 0
+            && data.timestamp == request.time
+            && data.logType in ['daily', 'weekly']
+            && data.userId == request.auth.uid
+            && exists(/databases/$(database)/documents/locations/$(data.locationId));
+      }
+
+      allow list: if isSignedIn();
+      allow get: if isSignedIn();
+      allow create: if isSignedIn() && isValidUsageLog(incoming()) && isValidId(logId);
+      allow update, delete: if false; // Logs are immutable audit trails
+    }
+  }
+}

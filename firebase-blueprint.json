@@ -1,0 +1,44 @@
+{
+  "entities": {
+    "Location": {
+      "title": "Location",
+      "description": "A specific location where a handrub dispenser is placed.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the location (e.g., Room 101)" },
+        "type": { "type": "string", "description": "Category of location (e.g., patient_room, entrance)" },
+        "currentVolume": { "type": "number", "description": "Current volume in ml" },
+        "bottleCapacity": { "type": "number", "description": "Total capacity of the current bottle (usually 500)" },
+        "lastResetAt": { "type": "string", "format": "date-time", "description": "When the bottle was last replaced" },
+        "lastEntryAt": { "type": "string", "format": "date-time", "description": "When the last usage log was recorded" },
+        "createdBy": { "type": "string", "description": "UID of the user who created this location" }
+      },
+      "required": ["name", "type", "currentVolume", "bottleCapacity", "createdBy"]
+    },
+    "UsageLog": {
+      "title": "Usage Log",
+      "description": "A record of volume measurement at a specific location.",
+      "type": "object",
+      "properties": {
+        "locationId": { "type": "string", "description": "ID of the linked location" },
+        "volumeRemaining": { "type": "number", "description": "Volume measured in ml" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "When the measurement was recorded" },
+        "logType": { "type": "string", "enum": ["daily", "weekly"], "description": "Frequency of recording" },
+        "isReplacement": { "type": "boolean", "description": "Whether this log signifies a new bottle" },
+        "usageAmount": { "type": "number", "description": "Calculated usage since last log (for analytics convenience)" },
+        "userId": { "type": "string", "description": "UID of the user who recorded this" }
+      },
+      "required": ["locationId", "volumeRemaining", "timestamp", "logType", "userId"]
+    }
+  },
+  "firestore": {
+    "locations": {
+      "schema": "Location",
+      "description": "Master list of dispenser locations"
+    },
+    "usage_logs": {
+      "schema": "UsageLog",
+      "description": "Continuous logs of daily/weekly measurements"
+    }
+  }
+}
